@@ -3,9 +3,11 @@ from app.controllers.game_of_life.life_controller import LifeController
 
 
 def main():
-    life = LifeController()
-    life.helloToModel()
+    startLife()
 
+def startLife():
+    life = LifeController(10, 0.5)
+    life.startLife()
 
 if __name__ == "__main__":
     main()
