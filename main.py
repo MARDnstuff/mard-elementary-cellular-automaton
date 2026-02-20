@@ -6,7 +6,7 @@ def main():
     startLife()
 
 def startLife():
-    life = LifeController(10, 0.5)
+    life = LifeController(200, 0.5)
     life.startLife()
 
 if __name__ == "__main__":

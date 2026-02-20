@@ -4,27 +4,19 @@ class Universe:
     def __init__(self, size: int = 3):
         """
         Constructor
-
-        Args:
-            size (int): Size of the space
-        Return:
-            Universe instance
+        
+        :param size: Size of the grid
+        :type size: int
         """
         self.size = size
         self.matrix = []
     
-    def helloWorld(self) -> str:
-        print("Universe: " + str(self.size))
-        pass
-
     def randomPopulateSpace(self, percentage: float) -> None:
         """
-        Popoulates the matrix randomly
+        Populate the matrix randomly
         
-        Args:
-            percentage (float): amount of CA alive
-        Return:
-            None
+        :param percentage: Amount of alive cells
+        :type percentage: float
         """
         for i in range(self.size):
             row = []
@@ -35,26 +27,15 @@ class Universe:
                 else:
                     row.append(0)
             self.matrix.append(row)
-        self.matrix = [
-            [0,0,0,0,0,0,0,0,0,0],
-            [0,0,0,0,0,0,0,0,0,0],
-            [0,0,0,1,0,0,0,0,0,0],
-            [0,0,0,0,1,0,0,0,0,0],
-            [0,0,1,1,1,0,0,0,0,0],
-            [0,0,0,0,0,0,0,0,0,0],
-            [0,0,0,0,0,0,0,0,0,0],
-            [0,0,0,0,0,0,0,0,0,0],
-            [0,0,0,0,0,0,0,0,0,0],
-            [0,0,0,0,0,0,0,0,0,0],
-        ]
-
+        
     def __str__(self) -> str:
+        """
+        String format
+
+        :return: String format of matrix
+        :rtype: str
+        """
         output = ""
         for row in self.matrix:
-            for elem in row:
-                if elem == 1:
-                    output += " * "
-                else:
-                    output += "   "
-            output += "\n"
+            output += str(row) + "\n"
         return output

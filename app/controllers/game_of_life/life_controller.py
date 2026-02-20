@@ -7,13 +7,23 @@ import os
 
 class LifeController:
     def __init__(self, size, percentage):
+        """
+        Constructur
+        
+        :param size: Size of the grid
+        :param percentage: amount of alive cells
+        """
         self.my_universe = LifeUniverse(size)
         self.my_universe.randomPopulateSpace(percentage)
-    
-    def showGrid(self) -> None:
-        print(self.my_universe)
-    
+        self.time_velocity = 5
+
     def advanceSimulation(self) -> list[list]:
+        """
+        Run the simulation, Advance the simulation on iteration
+        
+        :return: matrix
+        :rtype: list[list]
+        """
         output_matrix = []
         for i, row in enumerate(self.my_universe.matrix):
             new_row = []
@@ -39,68 +49,32 @@ class LifeController:
         self.my_universe.matrix = output_matrix
 
     def startLife(self) -> None:
-
-        # Configuración
-        WIDTH, HEIGHT = 800, 600
-        ROWS, COLS = 30, 40
-        CELL_SIZE = WIDTH // COLS
-
-        # Colores
-        BG_COLOR = (30, 30, 30)
-        GRID_COLOR = (60, 60, 60)
-
+        """
+        Starts simulation
+        """
+        self.view = LifeView(self.my_universe.size)
+        
         pygame.init()
-        screen = pygame.display.set_mode((WIDTH, HEIGHT))
+        self.screen = pygame.display.set_mode((self.view.WIDTH, self.view.HEIGHT))
         pygame.display.set_caption("Grid con Pygame")
 
         clock = pygame.time.Clock()
-
-        def draw_grid():
-            for row in range(ROWS):
-                for col in range(COLS):
-                    rect = pygame.Rect(
-                        col * CELL_SIZE,
-                        row * CELL_SIZE,
-                        CELL_SIZE,
-                        CELL_SIZE
-                    )
-                    pygame.draw.rect(screen, GRID_COLOR, rect, 1)  # 1 = solo borde
         
-        def update_grid(screen, grid: list[list[int]], cell_size: int) -> None:
-            rows = len(grid)
-            cols = len(grid[0])
-
-            for r in range(rows):
-                for c in range(cols):
-                    
-                    if grid[r][c] == 1:
-                        color = (255, 255, 255)  # blanco = viva
-                    else:
-                        color = (0, 0, 0)  # negro = muerta
-                    
-                    pygame.draw.rect(
-                        screen,
-                        color,
-                        (c * cell_size, r * cell_size, cell_size, cell_size)
-                    )
-
-        # Loop principal
+        # Main loop
         running = True
         
         while running:
-            clock.tick(5)
-            screen.fill(BG_COLOR)
-            os.system("cls" if os.name == "nt" else "clear")
+            clock.tick(self.time_velocity)
+            self.screen.fill(self.view.BG_COLOR)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
-
-            draw_grid()
+            # Main logic
+            self.view.draw_grid(self.screen)
             self.advanceSimulation()
-            update_grid(screen, self.my_universe.matrix, self.my_universe.size)
+            self.view.update_grid(self.screen, self.my_universe.matrix, self.my_universe.size)
             
             pygame.display.flip()
-
 
         pygame.quit()
         sys.exit()
