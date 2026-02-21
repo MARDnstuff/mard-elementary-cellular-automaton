@@ -4,7 +4,7 @@ class LifeUniverse(Universe):
     """
     Represents a universe for Conway's Game of Life.
     """
-    def __init__(self, size = 3):
+    def __init__(self, size: int = 3) -> None:
         """
         Constructor
         

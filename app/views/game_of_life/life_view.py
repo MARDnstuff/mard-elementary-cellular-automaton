@@ -75,6 +75,3 @@ class LifeView:
                 pygame.draw.rect(screen,self.GRID_COLOR,rect, 1)
         logger.debug("Grid updated on screen")
 
-
-                
-

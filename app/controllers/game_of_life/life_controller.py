@@ -1,25 +1,26 @@
 from app.models.environment.game_of_life.life_universe import LifeUniverse
 from app.views.game_of_life.life_view import LifeView
 from app.controllers.utils.utils import positive
+from app.controllers.simulation import Simulation
 import logging
 import pygame
 import sys
-import os
+
 
 logger = logging.getLogger(__name__)
 
-class LifeController:
+class LifeController(Simulation):
     """
     Controller class for Conway's Game of Life
     """
 
-    def __init__(self, size, percentage):
+    def __init__(self, size: int, percentage: float) -> None:
         """
         Constructur
         
         :param size: Size of the grid
         :param percentage: amount of alive cells
-        """
+        """        
         self.my_universe = LifeUniverse(size)
         self.my_universe.randomPopulateSpace(percentage)
         self.time_velocity = 5
@@ -64,7 +65,7 @@ class LifeController:
 
     
 
-    def startLife(self) -> None:
+    def startSimulation(self) -> None:
         """
         Starts simulation
         """
