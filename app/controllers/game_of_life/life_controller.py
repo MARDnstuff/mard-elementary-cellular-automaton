@@ -1,11 +1,18 @@
 from app.models.environment.game_of_life.life_universe import LifeUniverse
 from app.views.game_of_life.life_view import LifeView
 from app.controllers.utils.utils import positive
+import logging
 import pygame
 import sys
 import os
 
+logger = logging.getLogger(__name__)
+
 class LifeController:
+    """
+    Controller class for Conway's Game of Life
+    """
+
     def __init__(self, size, percentage):
         """
         Constructur
@@ -16,6 +23,7 @@ class LifeController:
         self.my_universe = LifeUniverse(size)
         self.my_universe.randomPopulateSpace(percentage)
         self.time_velocity = 5
+        self.age = 0
 
     def advanceSimulation(self) -> list[list]:
         """
@@ -24,6 +32,10 @@ class LifeController:
         :return: matrix
         :rtype: list[list]
         """
+        if not self.my_universe.matrix:
+            logger.error("Universe is empty")
+            raise Exception("Universe is not initialized properly")
+
         output_matrix = []
         for i, row in enumerate(self.my_universe.matrix):
             new_row = []
@@ -47,37 +59,48 @@ class LifeController:
                     new_row.append(0)
             output_matrix.append(new_row)
         self.my_universe.matrix = output_matrix
+        self.age += 1
+        logger.debug("Simulation advanced by one iteration -> Age: %d", self.age)
+
+    
 
     def startLife(self) -> None:
         """
         Starts simulation
         """
-        self.view = LifeView(self.my_universe.size)
-        
-        pygame.init()
-        self.screen = pygame.display.set_mode((self.view.WIDTH, self.view.HEIGHT))
-        pygame.display.set_caption("Grid con Pygame")
-
-        clock = pygame.time.Clock()
-        
-        # Main loop
-        running = True
-        
-        while running:
-            clock.tick(self.time_velocity)
-            self.screen.fill(self.view.BG_COLOR)
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    running = False
-            # Main logic
-            self.view.draw_grid(self.screen)
-            self.advanceSimulation()
-            self.view.update_grid(self.screen, self.my_universe.matrix, self.my_universe.size)
+        try:
+            logger.info("Starting Life simulation")
+            self.view = LifeView(self.my_universe.size)
             
-            pygame.display.flip()
+            pygame.init()
+            self.screen = pygame.display.set_mode((self.view.WIDTH, self.view.HEIGHT))
+            logger.debug("Pygame initialized and screen created")
+            pygame.display.set_caption("Grid con Pygame")
 
-        pygame.quit()
-        sys.exit()
+            clock = pygame.time.Clock()
+            
+            # Main loop
+            running = True
+            
+            while running:
+                clock.tick(self.time_velocity)
+                self.screen.fill(self.view.BG_COLOR)
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        logger.info("Ending Life simulation")
+                        running = False
+                # Main logic
+                self.view.draw_grid(self.screen)
+                self.advanceSimulation()
+                self.view.update_grid(self.screen, self.my_universe.matrix, self.my_universe.size)
+                
+                pygame.display.flip()
+
+            pygame.quit()
+            sys.exit()
+        except Exception as e:
+            logger.error("Error in Life simulation: %s", e)
+            sys.exit()
 
 
 

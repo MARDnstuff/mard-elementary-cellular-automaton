@@ -1,6 +1,9 @@
 from random import randint
 
 class Universe:
+    """
+    Base class for all universes in the cellular automaton simulation.
+    """
     def __init__(self, size: int = 3):
         """
         Constructor

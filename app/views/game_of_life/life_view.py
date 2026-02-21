@@ -1,16 +1,23 @@
+import logging
 import pygame
 import sys
 
+logger = logging.getLogger(__name__) 
+
+
 class LifeView:
+    """
+    View class for Conway's Game of Life
+    """
+
     def __init__(self, size: int):
         """
-        Docstring for __init__
+        Constructor
         
-        :param self: Description
-        :param size: Description
+        :param size: Size of the grid (number of rows and columns)
         :type size: int
         """
-        # Confguration
+        # Screen Confguration
         self.WIDTH: int = 800
         self.HEIGHT: int = 800
         self.ROWS: int = size
@@ -25,10 +32,9 @@ class LifeView:
 
     def draw_grid(self, screen) -> None:
         """
-        Docstring for draw_grid
+        Draws the grid on the screen
         
-        :param self: Description
-        :param screen: Description
+        :param screen: The pygame screen surface to draw on
         """
         for row in range(self.ROWS):
             for col in range(self.COLS):
@@ -38,17 +44,18 @@ class LifeView:
                     self.CELL_SIZE,
                     self.CELL_SIZE
                 )
-                pygame.draw.rect(screen, self.GRID_COLOR, rect, 1)  # 1 = solo borde
+                pygame.draw.rect(screen, self.GRID_COLOR, rect, 1)
+        logger.debug("Grid drawn on screen")
+        
 
     def update_grid(self, screen, grid: list[list[int]], cell_size: int) -> None:
         """
-        Docstring for update_grid
+        Updastes the current grid
         
-        :param self: Description
-        :param screen: Description
-        :param grid: Description
+        :param screen: The pygame screen surface to draw on
+        :param grid: The 2D list representing the current state of the grid
         :type grid: list[list[int]]
-        :param cell_size: Description
+        :param cell_size: Size of each cell in pixels
         :type cell_size: int
         """
         for row in range(self.ROWS):
@@ -66,6 +73,7 @@ class LifeView:
                     pygame.draw.rect(screen,self.DEAD_COLOR,rect)
 
                 pygame.draw.rect(screen,self.GRID_COLOR,rect, 1)
+        logger.debug("Grid updated on screen")
 
 
                 

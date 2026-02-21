@@ -1,6 +1,6 @@
-class ElementaryController:
+class WumpusController:
     """
-    Controller class for Elementary Cellular Automaton
+    Controller class for Wumpus World
     """
 
     def __init__(self):

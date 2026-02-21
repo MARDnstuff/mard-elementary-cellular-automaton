@@ -1,8 +1,8 @@
 from ..universe import Universe
 
-class ElementaryUniverse(Universe):
+class WumpusUniverse(Universe):
     """
-    Represents a universe for Elementary Cellular Automaton
+    Represents a universe for Wumpus World
     """
     def __init__(self, size = 3):
         """
