@@ -1,8 +1,6 @@
 import logging
 import pygame
 
-from testWumpus import cart_to_iso
-
 logger = logging.getLogger(__name__) 
 
 class WumpusView:
@@ -36,6 +34,9 @@ class WumpusView:
         # Center map
         self.offset_x = self.WIDTH // 2
         self.offset_y = 100
+
+        self.loadImages()
+        self.scaleImages()
 
     def cart_to_iso(self, x: int, y: int) -> tuple[int, int]:
         """
@@ -74,3 +75,31 @@ class WumpusView:
                 iso_y + self.TILE_HEIGHT // 2 - sprite_height
             )
         )
+    
+    def loadImages(self) -> None:
+        self.agent_img = pygame.image.load("assets/knight_2.png").convert_alpha()
+        self.wumpus_img = pygame.image.load("assets/monster_2.png").convert_alpha()
+        self.gold_img = pygame.image.load("assets/gold.png").convert_alpha()
+
+    def scaleImages(self) -> None:
+        self.agent_img = pygame.transform.scale(self.agent_img, (70, 110))
+        self.wumpus_img = pygame.transform.scale(self.wumpus_img, (80, 110))
+        self.gold_img = pygame.transform.scale(self.gold_img, (60, 60))
+
+    def draw_grid(self, screen, my_universe) -> None:
+        # DIBUJAR GRID + ENTIDADES EN ORDEN CORRECTO
+        for row in range(self.GRID_SIZE):
+            for col in range(self.GRID_SIZE):
+
+                self.draw_tile(screen, col, row)
+
+                # Dibujar Wumpus si está aquí
+                if [col, row] == my_universe.wumpus_pos:
+                    self.draw_character(screen, self.wumpus_img, col, row)
+
+                # Dibujar Agente si está aquí
+                if [col, row] == my_universe.agent_pos:
+                    self.draw_character(screen, self.agent_img, col, row)
+
+                if [col, row] == my_universe.gold_pos:
+                    self.draw_character(screen, self.gold_img, col, row)
