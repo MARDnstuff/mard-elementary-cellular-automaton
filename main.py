@@ -16,13 +16,12 @@ def startElementary() -> None:
     """
     elementary = ElementaryController(100, 57)
     elementary.startSimulation()
-    pass
 
 def startWumpusWorld() -> None:
     """
     Wumpus World Simulation
     """
-    wumpus_world = WumpusController()
+    wumpus_world = WumpusController(size=4)
     wumpus_world.startSimulation()
     pass
 

@@ -1,3 +1,6 @@
+from app.models.environment.wumpus_world.wumpus_universe import WumpusUniverse
+from app.models.environment.wumpus_world.cellPerception import cellPerception
+import math
 import logging
 import pygame
 
@@ -23,20 +26,25 @@ class WumpusView:
         self.WHITE = (255, 255, 255)
         self.GRAY = (200, 200, 200)
         self.BLACK = (0, 0, 0)
-        self.GREEN = (0, 200, 0)
+        self.AGENT_TILE = (179, 88, 86)
         self.RED = (200, 0, 0)
+        self.STENCH = (40, 97, 61)
+        self.BREEZE = (57, 129, 179)
         
         # Assets
         self.agent_img_path = "assets/knight_2.png"
         self.wumpus_img_path = "assets/monster_2.png"
         self.gold_img_path = "assets/gold.png"
+        self.pit_img_path = "assets/tile_pit.png"
+        self.tile_img_path = "assets/tile.png"
+        self.tile_breeze_img_path = "assets/tiles_breeze.png"
+        self.tile_stench_img_path = "assets/tile_stench.png"
+        self.tile_breeze_and_stench_img_path = "assets/tile_breeze_and_stench.png"
 
         # Center map
         self.offset_x = self.WIDTH // 2
         self.offset_y = 100
 
-        self.loadImages()
-        self.scaleImages()
 
     def cart_to_iso(self, x: int, y: int) -> tuple[int, int]:
         """
@@ -48,19 +56,59 @@ class WumpusView:
         iso_x = (x - y) * (self.TILE_WIDTH // 2)
         iso_y = (x + y) * (self.TILE_HEIGHT // 2)
         return iso_x +  self.offset_x, iso_y + self.offset_y
+    
+    def loadImages(self) -> None:
+        self.agent_img = pygame.image.load(self.agent_img_path).convert_alpha()
+        self.wumpus_img = pygame.image.load(self.wumpus_img_path).convert_alpha()
+        self.gold_img = pygame.image.load(self.gold_img_path).convert_alpha()
+        self.pit_img = pygame.image.load(self.pit_img_path).convert_alpha()
+        self.tile_img = pygame.image.load(self.tile_img_path).convert_alpha()
+        self.tile_breeze_img = pygame.image.load(self.tile_breeze_img_path).convert_alpha()
+        self.tile_stench_img = pygame.image.load(self.tile_stench_img_path).convert_alpha()
+        self.tile_breeze_and_stench_img = pygame.image.load(self.tile_breeze_and_stench_img_path).convert_alpha()
 
-    def draw_tile(self, screen, x: int, y: int) -> None:
+        self.tiles = {
+            (0,0): self.tile_img,
+            (1,0): self.tile_stench_img,
+            (0,1): self.tile_breeze_img ,
+            (1,1): self.tile_breeze_and_stench_img
+        }
+        logger.info("Images were loaded correctly")
+
+
+    def scaleImages(self) -> None:
+        self.agent_img = pygame.transform.scale(self.agent_img, (70, 110))
+        self.wumpus_img = pygame.transform.scale(self.wumpus_img, (80, 110))
+        self.gold_img = pygame.transform.scale(self.gold_img, (60, 60))
+        self.pit_img = pygame.transform.scale(self.pit_img, (self.TILE_WIDTH, self.TILE_HEIGHT))
+        for key in self.tiles:
+            self.tiles[key] = pygame.transform.scale(
+                self.tiles[key],
+                (self.TILE_WIDTH, self.TILE_HEIGHT)
+            )
+        logger.info("Images were scaled correctly")
+        
+
+
+    def draw_tile(self, screen, x: int, y: int, cell: cellPerception) -> None:
         iso_x, iso_y = self.cart_to_iso(x, y)
 
-        points = [
-            (iso_x, iso_y),
-            (iso_x + self.TILE_WIDTH // 2, iso_y + self.TILE_HEIGHT // 2),
-            (iso_x, iso_y + self.TILE_HEIGHT),
-            (iso_x - self.TILE_WIDTH // 2, iso_y + self.TILE_HEIGHT // 2),
-        ]
+        # get perceptions
+        stench = cell.perception[0]
+        breeze = cell.perception[1]
 
-        pygame.draw.polygon(screen, self.GRAY, points)
-        pygame.draw.polygon(screen, self.BLACK, points, 2)
+        # select tile
+        tile = self.tiles[(stench, breeze)]
+        
+        if cell.type == "P":
+            tile = self.pit_img
+        
+        # ajustar posición porque iso_x es el centro superior
+        draw_x = iso_x - self.TILE_WIDTH // 2
+        draw_y = iso_y
+
+        screen.blit(tile, (draw_x, draw_y))
+        logger.debug("Tile has been drawn")
 
     def draw_character(self, screen, img, x: int, y: int) -> None:
         iso_x, iso_y = self.cart_to_iso(x, y)
@@ -75,31 +123,24 @@ class WumpusView:
                 iso_y + self.TILE_HEIGHT // 2 - sprite_height
             )
         )
-    
-    def loadImages(self) -> None:
-        self.agent_img = pygame.image.load("assets/knight_2.png").convert_alpha()
-        self.wumpus_img = pygame.image.load("assets/monster_2.png").convert_alpha()
-        self.gold_img = pygame.image.load("assets/gold.png").convert_alpha()
+        logger.debug("Character has been drawn")
 
-    def scaleImages(self) -> None:
-        self.agent_img = pygame.transform.scale(self.agent_img, (70, 110))
-        self.wumpus_img = pygame.transform.scale(self.wumpus_img, (80, 110))
-        self.gold_img = pygame.transform.scale(self.gold_img, (60, 60))
 
-    def draw_grid(self, screen, my_universe) -> None:
-        # DIBUJAR GRID + ENTIDADES EN ORDEN CORRECTO
-        for row in range(self.GRID_SIZE):
-            for col in range(self.GRID_SIZE):
+    def draw_grid(self, screen, my_universe: WumpusUniverse) -> None:
+        for x, row  in enumerate(my_universe.matrix):
+            for y, col in enumerate(row):
+                self.draw_tile(screen, x, y, col)
 
-                self.draw_tile(screen, col, row)
+                # Draw Wumpus
+                if [x, y] == my_universe.wumpus_pos:
+                    self.draw_character(screen, self.wumpus_img, x, y)
 
-                # Dibujar Wumpus si está aquí
-                if [col, row] == my_universe.wumpus_pos:
-                    self.draw_character(screen, self.wumpus_img, col, row)
+                # Draw Agent and his tile
+                if [x, y] == my_universe.agent_pos:
+                    self.draw_character(screen, self.agent_img, x, y)
 
-                # Dibujar Agente si está aquí
-                if [col, row] == my_universe.agent_pos:
-                    self.draw_character(screen, self.agent_img, col, row)
-
-                if [col, row] == my_universe.gold_pos:
-                    self.draw_character(screen, self.gold_img, col, row)
+                # Draw Gold
+                if [x, y] == my_universe.gold_pos:
+                    self.draw_character(screen, self.gold_img, x, y)
+        logger.debug("Grid has been drawn correctly")
+                

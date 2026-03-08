@@ -100,7 +100,7 @@ class LifeController(Simulation):
             pygame.quit()
             sys.exit()
         except Exception as e:
-            logger.error("Error in Life simulation: %s", e)
+            logger.error("Error in Life simulation: %s", e, exc_info=True)
             sys.exit()
 
 

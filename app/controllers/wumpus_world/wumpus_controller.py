@@ -4,8 +4,6 @@ import logging
 import pygame
 import sys
 
-
-
 logger = logging.getLogger(__name__)
 
 class WumpusController:
@@ -13,12 +11,11 @@ class WumpusController:
     Controller class for Wumpus World
     """
 
-    def __init__(self):
+    def __init__(self, size):
         """
         Constructor
         """
-        self.my_universe = WumpusUniverse()
-        self.my_view = WumpusView(self.my_universe.size)
+        self.my_universe = WumpusUniverse(size=size)
         self.time_velocity = 60
     
     def advanceSimulation(self) -> None:
@@ -33,10 +30,13 @@ class WumpusController:
         """
         try:
             logger.info("Starting Wumpus World simulation")
+            self.view = WumpusView(self.my_universe.size)
             
             pygame.init()
-            screen = pygame.display.set_mode((self.my_view.WIDTH, self.my_view.HEIGHT))
+            self.screen = pygame.display.set_mode((self.view.WIDTH, self.view.HEIGHT))
             pygame.display.set_caption("Wumpus Isométrico con Sprites")
+            self.view.loadImages()
+            self.view.scaleImages()
             logger.debug("Pygame initialized and screen created")
             clock = pygame.time.Clock()
 
@@ -45,6 +45,7 @@ class WumpusController:
             while running:
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
+                        logger.debug("End of Wumpus World Simulation")
                         pygame.quit()
                         sys.exit()
 
@@ -58,11 +59,11 @@ class WumpusController:
                         if event.key == pygame.K_RIGHT and self.my_universe.agent_pos[0] < self.my_universe.size - 1:
                             self.my_universe.agent_pos[0] += 1
 
-                screen.fill(self.my_view.WHITE)
-                self.my_view.draw_grid(screen, self.my_universe)
+                self.screen.fill(self.view.WHITE)
+                self.view.draw_grid(self.screen, self.my_universe)
 
                 pygame.display.flip()
                 clock.tick(self.time_velocity)
         except Exception as e:
-            logger.error("Error in Wumpus simulation: %s", e)
+            logger.error("Error in Wumpus simulation: %s", e, exc_info=True)
             sys.exit()

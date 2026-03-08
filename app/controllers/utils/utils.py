@@ -7,3 +7,11 @@ def positive(n: int, size: int) -> int:
         return res
     else:
         return n
+
+def printMatrix(matrix: list) -> None:
+    for row in matrix:
+        for col in row:
+            print(col, end="")
+        print()
+    
+    
