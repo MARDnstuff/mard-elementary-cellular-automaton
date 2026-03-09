@@ -39,6 +39,9 @@ class WumpusUniverse(Universe):
         self.wumpus_pos = None
         self.gold_pos = None
 
+        # Sound efect
+        self.wumpus_scream_effect = None
+
         self.randomizeInitialPosition()
         printMatrix(self.matrix)
 

@@ -42,7 +42,7 @@ class LifeController(Simulation):
             new_row = []
             for j, col in enumerate(row):
                 num_neighbors = 0
-                
+                # TODO: move the following to a separate function in model
                 if self.my_universe.matrix[positive(i - 1, self.my_universe.size)%self.my_universe.size][j] == 1: num_neighbors += 1
                 if self.my_universe.matrix[positive(i - 1, self.my_universe.size)%self.my_universe.size][(j + 1)%self.my_universe.size] == 1: num_neighbors += 1
                 if self.my_universe.matrix[i][(j + 1)%self.my_universe.size] == 1: num_neighbors += 1

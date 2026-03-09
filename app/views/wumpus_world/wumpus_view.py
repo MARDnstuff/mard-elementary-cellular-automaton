@@ -40,6 +40,8 @@ class WumpusView:
         self.tile_breeze_img_path = "assets/tiles_breeze.png"
         self.tile_stench_img_path = "assets/tile_stench.png"
         self.tile_breeze_and_stench_img_path = "assets/tile_breeze_and_stench.png"
+        self.wumpus_scream_sound_path = "assets/scream.wav"
+        self.music_maze_sound_path = "assets/music_maze.wav"
 
         # Center map
         self.offset_x = self.WIDTH // 2
@@ -74,6 +76,12 @@ class WumpusView:
             (1,1): self.tile_breeze_and_stench_img
         }
         logger.info("Images were loaded correctly")
+    
+    def loadSounds(self) -> None:
+        self.wumpus_scream = pygame.mixer.Sound(self.wumpus_scream_sound_path)
+        self.global_music = pygame.mixer.Sound(self.music_maze_sound_path)
+        self.wumpus_scream.set_volume(0.5)
+        self.global_music.set_volume(0.2)
 
 
     def scaleImages(self) -> None:
@@ -87,8 +95,12 @@ class WumpusView:
                 (self.TILE_WIDTH, self.TILE_HEIGHT)
             )
         logger.info("Images were scaled correctly")
+    
+    def draw_win_title(self, screen, text: str) -> None:
+        font = pygame.font.SysFont("Arial", 72)
+        win_text = font.render(text, True, (255,215,0))
+        screen.blit(win_text, (self.WIDTH // 2,450))
         
-
 
     def draw_tile(self, screen, x: int, y: int, cell: cellPerception) -> None:
         iso_x, iso_y = self.cart_to_iso(x, y)
@@ -108,7 +120,7 @@ class WumpusView:
         draw_y = iso_y
 
         screen.blit(tile, (draw_x, draw_y))
-        logger.debug("Tile has been drawn")
+        # logger.debug("Tile has been drawn")
 
     def draw_character(self, screen, img, x: int, y: int) -> None:
         iso_x, iso_y = self.cart_to_iso(x, y)
@@ -123,7 +135,7 @@ class WumpusView:
                 iso_y + self.TILE_HEIGHT // 2 - sprite_height
             )
         )
-        logger.debug("Character has been drawn")
+        # logger.debug("Character has been drawn")
 
 
     def draw_grid(self, screen, my_universe: WumpusUniverse) -> None:
@@ -132,7 +144,7 @@ class WumpusView:
                 self.draw_tile(screen, x, y, col)
 
                 # Draw Wumpus
-                if [x, y] == my_universe.wumpus_pos:
+                if my_universe.matrix[x][y].type == my_universe.WUMPUS:
                     self.draw_character(screen, self.wumpus_img, x, y)
 
                 # Draw Agent and his tile
@@ -140,7 +152,7 @@ class WumpusView:
                     self.draw_character(screen, self.agent_img, x, y)
 
                 # Draw Gold
-                if [x, y] == my_universe.gold_pos:
+                if my_universe.matrix[x][y].type == my_universe.GOLD:
                     self.draw_character(screen, self.gold_img, x, y)
-        logger.debug("Grid has been drawn correctly")
+        # logger.debug("Grid has been drawn correctly")
                 
