@@ -29,7 +29,8 @@ class WumpusController:
             logger.error("Universe is empty")
             raise Exception("Universe is not initialized properly")
         
-        new_pos = self.my_agent.chooseDirection()
+        # new_pos = self.my_agent.chooseDirection()
+        new_pos = self.my_agent.chooseDirectionFOL()
         self.my_agent.move(new_pos[0], new_pos[1])
         if new_pos == [0,0] and self.my_agent.gold:
             self.pause = True

@@ -107,3 +107,72 @@ class Agent:
             return best_move
         else:
             raise Exception("The Agent is stuck")
+    
+    def chooseDirectionFOL(self) -> tuple[int, int]:
+        x, y = self.my_pos
+        self.visited.add((x, y))
+
+        current_cell = self.env.matrix[x][y]
+
+        logger.info(f" -> {current_cell.type}")
+
+        # Regla FOL: At(x,y) ∧ Gold(x,y) -> TakeGold
+        if current_cell.type == self.env.GOLD:
+            self.takeGold(x, y)
+
+        # Regla FOL: At(x,y) ∧ Wumpus(x,y) -> Dead
+        if current_cell.type == self.env.WUMPUS:
+            self.alive = False
+            return
+
+        # Percepciones actuales
+        breeze = current_cell.perception[0]  # Breeze -> posible PIT cerca
+        stench = current_cell.perception[1]  # Stench -> posible Wumpus cerca
+
+        directions = [
+            (x-1, y),  # up
+            (x+1, y),  # down
+            (x, y+1),  # right
+            (x, y-1)   # left
+        ]
+
+        safe_moves = []
+        risky_moves = []
+
+        for nx, ny in directions:
+            # Regla: Adjacent(x,y,nx,ny)
+            if 0 <= nx < self.env.size and 0 <= ny < self.env.size:
+
+                cell = self.env.matrix[nx][ny]
+
+                # Regla FOL:
+                # ¬Breeze ∧ ¬Stench -> Safe(nx,ny)
+                is_safe = (breeze == 0 and stench == 0)
+
+                if is_safe:
+                    # Safe(nx,ny)
+                    if (nx, ny) not in self.visited:
+                        safe_moves.append((nx, ny))
+                    else:
+                        # visitado pero seguro
+                        risky_moves.append((nx, ny))
+
+                else:
+                    # No es seguro -> posible riesgo
+                    if cell.type == self.env.WUMPUS and self.arrow:
+                        # Regla: Stench -> posible Wumpus -> acción
+                        self.shotArrow(nx, ny)
+                    else:
+                        risky_moves.append((nx, ny))
+            else:
+                logger.info("Bump")
+
+        # Regla: elegir Safe ∧ ¬Visited primero
+        if safe_moves:
+            return safe_moves[0]
+
+        # Regla fallback: Safe aunque ya visitado
+        if risky_moves:
+            return risky_moves[0]
+
+        raise Exception("The Agent is stuck")

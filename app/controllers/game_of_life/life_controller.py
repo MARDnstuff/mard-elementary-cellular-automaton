@@ -51,7 +51,7 @@ class LifeController(Simulation):
                 if self.my_universe.matrix[(i + 1)%self.my_universe.size][positive(j - 1, self.my_universe.size)%self.my_universe.size] == 1: num_neighbors += 1
                 if self.my_universe.matrix[i][positive(j - 1, self.my_universe.size)%self.my_universe.size] == 1: num_neighbors += 1
                 if self.my_universe.matrix[positive(i - 1, self.my_universe.size)%self.my_universe.size][positive(j - 1, self.my_universe.size)%self.my_universe.size] == 1: num_neighbors += 1
-
+                
                 if self.my_universe.matrix[i][j] == 0 and (num_neighbors >= self.my_universe.Nmin and num_neighbors <= self.my_universe.Nmax):
                     new_row.append(1)
                 elif self.my_universe.matrix[i][j] == 1 and (num_neighbors >= self.my_universe.Smin and num_neighbors <= self.my_universe.Smax):
